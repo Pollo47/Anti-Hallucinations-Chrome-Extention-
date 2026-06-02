@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="popup.css">
+<title>Anti Hallucinations</title>
+</head>
+<body class="dark">
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="M9 12l2 2 4-4"/>
+      </svg>
+      <span class="logo-text">Anti Hallucinations</span>
+    </div>
+    <div class="header-right">
+      <span class="badge" id="badge">FREE</span>
+      <button class="theme-btn" id="themeBtn" title="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-bar" id="statusBar">
+    <span class="status-dot" id="statusDot"></span>
+    <span class="status-text" id="statusText">Connect to Ollama to start</span>
+  </div>
+
+  <!-- SETUP PANEL -->
+  <div class="panel setup-panel" id="setupPanel">
+    <div class="panel-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+      </svg>
+      Ollama Not Connected
+    </div>
+    <p class="panel-desc">Ollama must be running with CORS enabled. Choose your shell:</p>
+    
+    <div class="shell-tabs">
+      <button class="shell-tab active" data-shell="ps">PowerShell</button>
+      <button class="shell-tab" data-shell="cmd">CMD</button>
+      <button class="shell-tab" data-shell="bash">Bash/Mac</button>
+    </div>
+    
+    <pre class="code-block" id="codeBlock">$env:OLLAMA_ORIGINS="*"; ollama serve</pre>
+    
+    <div class="btn-row">
+      <button class="btn-small" id="copyBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        Copy
+      </button>
+      <button class="btn-small btn-primary" id="testBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        Connect
+      </button>
+    </div>
+    
+    <div class="hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 16v-4M12 8h.01"/>
+      </svg>
+      <strong>Tip:</strong> Add environment variable <code>OLLAMA_ORIGINS=*</code> then restart Ollama.
+    </div>
+    
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <!-- MAIN PANEL -->
+  <div class="panel main-panel" id="mainPanel" style="display:none;">
+    
+    <!-- Model -->
+    <div class="field">
+      <label>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+          <path d="M8 21h8M12 17v4M2 7h20"/>
+        </svg>
+        Local Model
+      </label>
+      <select id="modelSelect">
+        <option>No models detected</option>
+      </select>
+      <div class="model-info">
+        <span class="model-tag local">Local</span>
+        <span class="model-tag free">Free</span>
+      </div>
+    </div>
+
+    <!-- Upgrade Banner (Free users only) -->
+    <div class="upgrade-banner" id="upgradeBanner">
+      <div class="upgrade-content">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <div class="upgrade-text">
+          <strong>Unlimited Verifications</strong>
+          <span>$9 lifetime — no recurring fees</span>
+        </div>
+      </div>
+      <button class="btn-upgrade" id="upgradeBtn">Upgrade</button>
+    </div>
+
+    <!-- Input -->
+    <div class="field">
+      <label>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        Statement to Verify
+      </label>
+      <textarea id="textInput" placeholder="Enter a factual statement to verify..."></textarea>
+    </div>
+
+    <!-- Verify -->
+    <button class="btn-verify" id="verifyBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+        <polyline points="22 4 12 14.01 9 11.01"/>
+      </svg>
+      Verify Fact
+    </button>
+
+    <!-- Result -->
+    <div id="resultArea"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span id="footerLeft">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M2 12h20"/>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+      </svg>
+      Local Ollama
+    </span>
+    <span id="footerRight">10 free / 3h</span>
+  </div>
+</div>
+
+<!-- Upgrade Modal -->
+<div class="modal" id="upgradeModal">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+      </svg>
+    </div>
+    <div class="modal-title">Go Unlimited</div>
+    <p>Unlock unlimited local verifications with your own AI models</p>
+    
+    <div class="price-box">
+      <div class="price">$9.00</div>
+      <div class="price-label">One-time payment — Lifetime access</div>
+    </div>
+    
+    <ul class="feature-list">
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Unlimited verifications
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        All local models supported
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        No recurring fees ever
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Works offline with Ollama
+      </li>
+    </ul>
+    
+    <input type="text" id="keyInput" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" maxlength="19">
+    <button class="btn-activate" id="activateBtn">Activate License</button>
+    <button class="btn-later" id="laterBtn">Maybe Later</button>
+  </div>
+</div>
+
+<!-- Admin Key Generator Modal -->
+<div class="modal" id="adminModal">
+  <div class="modal-box admin-box">
+    <div class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    <div class="modal-title">Key Generator</div>
+    <p class="admin-desc">Generate lifetime license keys for your subscribers</p>
+    
+    <div class="admin-field">
+      <label>Quantity</label>
+      <input type="number" id="qtyInput" value="1" min="1" max="100">
+    </div>
+    
+    <div class="generated-keys" id="generatedKeys"></div>
+    
+    <button class="btn-activate" id="genKeyBtn">Generate Keys</button>
+    <button class="btn-small" id="copyKeysBtn">Copy All</button>
+    <button class="btn-later" id="closeAdminBtn">Close</button>
+  </div>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
